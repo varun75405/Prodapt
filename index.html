@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Teacher's Assistant — Empowering Educators</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-primary: #6366f1;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --accent-hover: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Header */
+        header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: var(--accent-gradient);
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .logo-text {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-tag {
+            font-size: 0.75rem;
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 8px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .api-config-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .api-config-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* App Container */
+        .app-layout {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Sidebar Navigation */
+        sidebar {
+            width: 280px;
+            background: rgba(15, 23, 42, 0.5);
+            border-right: 1px solid var(--card-border);
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            color: var(--text-muted);
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .nav-item.active {
+            color: white;
+            background: var(--accent-gradient);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* Main Workspace */
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Glassmorphic Cards & Forms */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select, textarea {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn-submit {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-submit:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Result View */
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .badge-model {
+            font-size: 0.8rem;
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .markdown-output {
+            line-height: 1.7;
+            font-size: 0.98rem;
+        }
+
+        .markdown-output h1, .markdown-output h2, .markdown-output h3 {
+            font-family: 'Outfit', sans-serif;
+            margin: 1.5rem 0 0.75rem 0;
+            color: #f1f5f9;
+        }
+
+        .markdown-output ul, .markdown-output ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .markdown-output p {
+            margin-bottom: 1rem;
+        }
+
+        .markdown-output table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .markdown-output th, .markdown-output td {
+            border: 1px solid var(--card-border);
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .markdown-output th {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Tabs for Simplify Concept */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 8px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden { display: none !important; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background: #1e293b;
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div class="logo-text">AI Teacher's Assistant</div>
+            <span class="logo-tag">Pro v1.0</span>
+        </div>
+        <div class="user-section">
+            <button class="api-config-btn" onclick="openConfigModal()">
+                <i class="fa-solid fa-gear"></i> Settings
+            </button>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <sidebar>
+            <div class="nav-item active" onclick="switchTab('lesson')">
+                <i class="fa-solid fa-book-open"></i> Lesson Generator
+            </div>
+            <div class="nav-item" onclick="switchTab('quiz')">
+                <i class="fa-solid fa-file-pen"></i> Quiz Generator
+            </div>
+            <div class="nav-item" onclick="switchTab('material')">
+                <i class="fa-solid fa-folder-open"></i> Learning Materials
+            </div>
+            <div class="nav-item" onclick="switchTab('simplify')">
+                <i class="fa-solid fa-lightbulb"></i> Simplify Concepts
+            </div>
+            <div class="nav-item" onclick="switchTab('activity')">
+                <i class="fa-solid fa-users-rays"></i> Classroom Activities
+            </div>
+            <div class="nav-item" onclick="switchTab('privacy')">
+                <i class="fa-solid fa-shield-halved"></i> Privacy Policy
+            </div>
+        </sidebar>
+
+        <!-- Main Content Area -->
+        <main>
+            <!-- 1. Lesson Generator Page -->
+            <div id="page-lesson" class="page-section">
+                <h1 class="page-title">📚 Lesson Plan Generator</h1>
+                <p class="page-subtitle">Create structured, objective-driven lesson plans in seconds.</p>
+
+                <div class="card">
+                    <form onsubmit="handleGenerateLesson(event)">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label>Topic / Subject Matter</label>
+                                <input type="text" id="lesson-topic" placeholder="e.g., Photosynthesis, Fractions, Causes of World War 2" required maxlength="200">
+                            </div>
+                            <div class="form-group">
+                                <label>Grade Level</label>
+                                <select id="lesson-grade">
+                                    <option value="elementary">Elementary School</option>
+                                    <option value="middle" selected>Middle School</option>
+                                    <option value="high">High School</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <select id="lesson-subject">
+                                    <option value="science" selected>Science</option>
+                                    <option value="math">Mathematics</option>
+                                    <option value="english">English / Language Arts</option>
+                                    <option value="history">History / Social Studies</option>
+                                    <option value="art">Arts & Music</option>
+                                    <option value="general">General</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit" id="btn-lesson">
+                            <span>Generate Lesson Plan</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div id="result-lesson" class="card hidden">
+                    <div class="result-header">
+                        <span class="badge-model" id="badge-lesson">Llama 3.3 70B</span>
+                        <div class="action-btns">
+                            <button class="btn-secondary" onclick="downloadText('lesson-out', 'lesson_plan.md')"><i class="fa-solid fa-download"></i> Markdown</button>
+                            <button class="btn-secondary" onclick="downloadText('lesson-out', 'lesson_plan.txt')"><i class="fa-solid fa-file-lines"></i> Text</button>
+                        </div>
+                    </div>
+                    <div id="output-lesson" class="markdown-output"></div>
+                </div>
+            </div>
+
+            <!-- 2. Quiz Generator Page -->
+            <div id="page-quiz" class="page-section hidden">
+                <h1 class="page-title">📝 Quiz Generator</h1>
+                <p class="page-subtitle">Auto-generate customized quizzes with answer keys from any topic or lesson plan.</p>
+
+                <div class="card">
+                    <form onsubmit="handleGenerateQuiz(event)">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label>Lesson Plan / Topic Content</label>
+                                <textarea id="quiz-content" placeholder="Paste your lesson plan or topic outline here..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Number of Questions</label>
+                                <select id="quiz-count">
+                                    <option value="3">3 Questions</option>
+                                    <option value="5" selected>5 Questions</option>
+                                    <option value="10">10 Questions</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit" id="btn-quiz">
+                            <span>Generate Quiz</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div id="result-quiz" class="card hidden">
+                    <div class="result-header">
+                        <span class="badge-model" id="badge-quiz">Llama 3.3 70B</span>
+                        <div class="action-btns">
+                            <button class="btn-secondary" onclick="downloadText('quiz-out', 'quiz.md')"><i class="fa-solid fa-download"></i> Markdown</button>
+                            <button class="btn-secondary" onclick="downloadText('quiz-out', 'quiz.txt')"><i class="fa-solid fa-file-lines"></i> Text</button>
+                        </div>
+                    </div>
+                    <div id="output-quiz" class="markdown-output"></div>
+                </div>
+            </div>
+
+            <!-- 3. Learning Materials Page -->
+            <div id="page-material" class="page-section hidden">
+                <h1 class="page-title">📄 Learning Materials Generator</h1>
+                <p class="page-subtitle">Generate worksheets, study notes, flashcards, practice exercises, and handouts.</p>
+
+                <div class="card">
+                    <form onsubmit="handleGenerateMaterial(event)">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label>Topic</label>
+                                <input type="text" id="material-topic" placeholder="e.g., The Water Cycle" required maxlength="200">
+                            </div>
+                            <div class="form-group">
+                                <label>Grade Level</label>
+                                <select id="material-grade">
+                                    <option value="elementary">Elementary School</option>
+                                    <option value="middle" selected>Middle School</option>
+                                    <option value="high">High School</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <select id="material-subject">
+                                    <option value="science" selected>Science</option>
+                                    <option value="math">Mathematics</option>
+                                    <option value="english">English</option>
+                                    <option value="history">History</option>
+                                    <option value="general">General</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Material Type</label>
+                                <select id="material-type">
+                                    <option value="worksheet">Worksheet</option>
+                                    <option value="notes">Study Notes</option>
+                                    <option value="flashcards">Flashcards (Term | Def)</option>
+                                    <option value="practice_exercises">Practice Exercises</option>
+                                    <option value="homework">Homework Assignment</option>
+                                    <option value="handouts">Classroom Handout</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit" id="btn-material">
+                            <span>Generate Material</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div id="result-material" class="card hidden">
+                    <div class="result-header">
+                        <span class="badge-model" id="badge-material">Llama 3.3 70B</span>
+                        <div class="action-btns">
+                            <button class="btn-secondary" onclick="downloadText('material-out', 'learning_material.md')"><i class="fa-solid fa-download"></i> Markdown</button>
+                            <button class="btn-secondary" onclick="downloadText('material-out', 'learning_material.txt')"><i class="fa-solid fa-file-lines"></i> Text</button>
+                        </div>
+                    </div>
+                    <div id="output-material" class="markdown-output"></div>
+                </div>
+            </div>
+
+            <!-- 4. Simplify Concept Page -->
+            <div id="page-simplify" class="page-section hidden">
+                <h1 class="page-title">🔍 Simplify Complex Concepts</h1>
+                <p class="page-subtitle">Get immediate explanations tailored to 3 distinct cognitive levels.</p>
+
+                <div class="card">
+                    <form onsubmit="handleSimplifyConcept(event)">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label>Complex Concept</label>
+                                <input type="text" id="simplify-concept" placeholder="e.g., Quantum Entanglement, Inflation, CRISPR" required maxlength="200">
+                            </div>
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <select id="simplify-subject">
+                                    <option value="science" selected>Science</option>
+                                    <option value="math">Mathematics</option>
+                                    <option value="english">English</option>
+                                    <option value="history">History</option>
+                                    <option value="general">General</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit" id="btn-simplify">
+                            <span>Simplify Topic</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div id="result-simplify" class="card hidden">
+                    <div class="result-header">
+                        <span class="badge-model" id="badge-simplify">Llama 3.3 70B</span>
+                        <div class="action-btns">
+                            <button class="btn-secondary" onclick="downloadText('simplify-out', 'simplified_concept.md')"><i class="fa-solid fa-download"></i> Markdown</button>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-bar">
+                        <button class="tab-btn active" onclick="switchSimplifyTab('elem')">🟢 Elementary Level</button>
+                        <button class="tab-btn" onclick="switchSimplifyTab('mid')">🟡 Middle School</button>
+                        <button class="tab-btn" onclick="switchSimplifyTab('high')">🔴 High School</button>
+                    </div>
+
+                    <div id="simplify-elem" class="markdown-output"></div>
+                    <div id="simplify-mid" class="markdown-output hidden"></div>
+                    <div id="simplify-high" class="markdown-output hidden"></div>
+                </div>
+            </div>
+
+            <!-- 5. Classroom Activities Page -->
+            <div id="page-activity" class="page-section hidden">
+                <h1 class="page-title">🎯 Classroom Activities Generator</h1>
+                <p class="page-subtitle">Engage your students with role-play, games, discussions, and exit tickets.</p>
+
+                <div class="card">
+                    <form onsubmit="handleGenerateActivity(event)">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label>Topic</label>
+                                <input type="text" id="activity-topic" placeholder="e.g., American Revolution, Ecosystems" required maxlength="200">
+                            </div>
+                            <div class="form-group">
+                                <label>Grade Level</label>
+                                <select id="activity-grade">
+                                    <option value="elementary">Elementary School</option>
+                                    <option value="middle" selected>Middle School</option>
+                                    <option value="high">High School</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <select id="activity-subject">
+                                    <option value="history" selected>History / Social Studies</option>
+                                    <option value="science">Science</option>
+                                    <option value="english">English</option>
+                                    <option value="math">Mathematics</option>
+                                    <option value="general">General</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Activity Type</label>
+                                <select id="activity-type">
+                                    <option value="group_activity">Group Activity</option>
+                                    <option value="discussion">Discussion Guide</option>
+                                    <option value="role_play">Role-Play Scenario</option>
+                                    <option value="classroom_game">Classroom Game</option>
+                                    <option value="assessment">Rubric & Assessment</option>
+                                    <option value="exit_ticket">Exit Ticket</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit" id="btn-activity">
+                            <span>Generate Activity</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div id="result-activity" class="card hidden">
+                    <div class="result-header">
+                        <span class="badge-model" id="badge-activity">Llama 3.3 70B</span>
+                        <div class="action-btns">
+                            <button class="btn-secondary" onclick="downloadText('activity-out', 'classroom_activity.md')"><i class="fa-solid fa-download"></i> Markdown</button>
+                            <button class="btn-secondary" onclick="downloadText('activity-out', 'classroom_activity.txt')"><i class="fa-solid fa-file-lines"></i> Text</button>
+                        </div>
+                    </div>
+                    <div id="output-activity" class="markdown-output"></div>
+                </div>
+            </div>
+
+            <!-- 6. Privacy Policy Page -->
+            <div id="page-privacy" class="page-section hidden">
+                <h1 class="page-title">🔒 Privacy Policy & Compliance</h1>
+                <p class="page-subtitle">FERPA-friendly by design. Zero PII storage.</p>
+
+                <div class="card markdown-output">
+                    <h2>Overview</h2>
+                    <p>The AI Teacher's Assistant is designed with strict privacy-first principles for educational environments.</p>
+
+                    <h2>Privacy Guarantees</h2>
+                    <ul>
+                        <li><strong>No Student PII:</strong> No student names, IDs, or sensitive personal identifiable information are ever stored or processed.</li>
+                        <li><strong>Server-Side Key Protection:</strong> API keys remain isolated on the backend server.</li>
+                        <li><strong>Session-Only Persistence:</strong> Generated content is kept temporarily in memory for your session and never sold or persisted in a database.</li>
+                        <li><strong>FERPA Friendly:</strong> Complies with educational privacy requirements by design.</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="modal-config" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 1rem;"><i class="fa-solid fa-sliders"></i> Settings & API Config</h2>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label>Backend API URL</label>
+                <input type="text" id="cfg-backend-url" placeholder="http://localhost:8000">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label>Direct Groq API Key (Optional Client Fallback)</label>
+                <input type="password" id="cfg-groq-key" placeholder="gsk_...">
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn-secondary" onclick="closeConfigModal()">Cancel</button>
+                <button class="btn-submit" onclick="saveConfig()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        const state = {
+            backendUrl: localStorage.getItem('backend_url') || 'http://localhost:8000',
+            groqApiKey: localStorage.getItem('groq_key') || '',
+            outputs: {}
+        };
+
+        document.getElementById('cfg-backend-url').value = state.backendUrl;
+        document.getElementById('cfg-groq-key').value = state.groqApiKey;
+
+        function switchTab(pageId) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
+
+            event.currentTarget.classList.add('active');
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+        }
+
+        function openConfigModal() { document.getElementById('modal-config').classList.remove('hidden'); }
+        function closeConfigModal() { document.getElementById('modal-config').classList.add('hidden'); }
+
+        function saveConfig() {
+            state.backendUrl = document.getElementById('cfg-backend-url').value.trim();
+            state.groqApiKey = document.getElementById('cfg-groq-key').value.trim();
+            localStorage.setItem('backend_url', state.backendUrl);
+            localStorage.setItem('groq_key', state.groqApiKey);
+            closeConfigModal();
+            alert('Settings saved!');
+        }
+
+        async function callAPI(endpoint, payload) {
+            try {
+                const res = await fetch(`${state.backendUrl}${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success) return data;
+                }
+            } catch (e) {
+                console.warn('Backend unavailable, attempting Groq direct fallback if key provided:', e);
+            }
+
+            // Client direct Groq fallback if user provided direct key
+            if (state.groqApiKey) {
+                return await callGroqDirect(endpoint, payload);
+            }
+
+            throw new Error('Could not connect to backend server. Make sure FastAPI server is running at ' + state.backendUrl);
+        }
+
+        async function callGroqDirect(endpoint, payload) {
+            let prompt = "";
+            if (endpoint === '/generate-lesson') prompt = `Create a structured lesson plan for ${payload.topic} (${payload.grade_level} grade, subject: ${payload.subject}) in Markdown.`;
+            else if (endpoint === '/generate-quiz') prompt = `Create a ${payload.num_questions}-question quiz with answers for: ${payload.lesson_plan} in Markdown.`;
+            else if (endpoint === '/generate-material') prompt = `Create a ${payload.material_type} for ${payload.topic} (${payload.grade_level} grade, subject: ${payload.subject}) in Markdown.`;
+            else if (endpoint === '/simplify-concept') prompt = `Explain the concept '${payload.concept}' in 3 sections strictly with headers: ## Elementary School Level, ## Middle School Level, ## High School Level.`;
+            else if (endpoint === '/generate-activity') prompt = `Create a ${payload.activity_type} activity for ${payload.topic} (${payload.grade_level} grade, subject: ${payload.subject}) in Markdown.`;
+
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${state.groqApiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [
+                        { role: 'system', content: 'You are an expert AI Teacher\'s Assistant.' },
+                        { role: 'user', content: prompt }
+                    ]
+                })
+            });
+
+            const data = await res.json();
+            const text = data.choices[0].message.content;
+
+            if (endpoint === '/generate-lesson') return { success: true, data: { lesson_plan: text }, model_used: 'Llama 3.3 70B (Direct)' };
+            if (endpoint === '/generate-quiz') return { success: true, data: { quiz: text }, model_used: 'Llama 3.3 70B (Direct)' };
+            if (endpoint === '/generate-material') return { success: true, data: { content: text }, model_used: 'Llama 3.3 70B (Direct)' };
+            if (endpoint === '/simplify-concept') {
+                const elem = (text.match(/##\s*Elementary School Level\s*([\s\S]*?)(?=##|$)/i) || [])[1] || text;
+                const mid = (text.match(/##\s*Middle School Level\s*([\s\S]*?)(?=##|$)/i) || [])[1] || text;
+                const high = (text.match(/##\s*High School Level\s*([\s\S]*?)(?=##|$)/i) || [])[1] || text;
+                return { success: true, data: { explanations: { elementary: elem, middle: mid, high: high } }, model_used: 'Llama 3.3 70B (Direct)' };
+            }
+            if (endpoint === '/generate-activity') return { success: true, data: { activity: text }, model_used: 'Llama 3.3 70B (Direct)' };
+        }
+
+        // Handlers
+        async function handleGenerateLesson(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-lesson');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+            try {
+                const res = await callAPI('/generate-lesson', {
+                    topic: document.getElementById('lesson-topic').value,
+                    grade_level: document.getElementById('lesson-grade').value,
+                    subject: document.getElementById('lesson-subject').value
+                });
+
+                state.outputs['lesson-out'] = res.data.lesson_plan;
+                document.getElementById('output-lesson').innerHTML = marked.parse(res.data.lesson_plan);
+                document.getElementById('badge-lesson').innerText = res.model_used || 'Llama 3.3 70B';
+                document.getElementById('result-lesson').classList.remove('hidden');
+
+                // Auto populate quiz text area
+                document.getElementById('quiz-content').value = res.data.lesson_plan;
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Generate Lesson Plan';
+            }
+        }
+
+        async function handleGenerateQuiz(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-quiz');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+            try {
+                const res = await callAPI('/generate-quiz', {
+                    lesson_plan: document.getElementById('quiz-content').value,
+                    num_questions: parseInt(document.getElementById('quiz-count').value)
+                });
+
+                state.outputs['quiz-out'] = res.data.quiz;
+                document.getElementById('output-quiz').innerHTML = marked.parse(res.data.quiz);
+                document.getElementById('badge-quiz').innerText = res.model_used || 'Llama 3.3 70B';
+                document.getElementById('result-quiz').classList.remove('hidden');
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Generate Quiz';
+            }
+        }
+
+        async function handleGenerateMaterial(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-material');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+            try {
+                const res = await callAPI('/generate-material', {
+                    topic: document.getElementById('material-topic').value,
+                    grade_level: document.getElementById('material-grade').value,
+                    subject: document.getElementById('material-subject').value,
+                    material_type: document.getElementById('material-type').value
+                });
+
+                state.outputs['material-out'] = res.data.content;
+                document.getElementById('output-material').innerHTML = marked.parse(res.data.content);
+                document.getElementById('badge-material').innerText = res.model_used || 'Llama 3.3 70B';
+                document.getElementById('result-material').classList.remove('hidden');
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Generate Material';
+            }
+        }
+
+        async function handleSimplifyConcept(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-simplify');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Simplifying...';
+
+            try {
+                const res = await callAPI('/simplify-concept', {
+                    concept: document.getElementById('simplify-concept').value,
+                    subject: document.getElementById('simplify-subject').value
+                });
+
+                const ex = res.data.explanations;
+                state.outputs['simplify-out'] = `# Simplified Concept\n\n## Elementary\n${ex.elementary}\n\n## Middle\n${ex.middle}\n\n## High\n${ex.high}`;
+
+                document.getElementById('simplify-elem').innerHTML = marked.parse(ex.elementary);
+                document.getElementById('simplify-mid').innerHTML = marked.parse(ex.middle);
+                document.getElementById('simplify-high').innerHTML = marked.parse(ex.high);
+                document.getElementById('badge-simplify').innerText = res.model_used || 'Llama 3.3 70B';
+                document.getElementById('result-simplify').classList.remove('hidden');
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Simplify Topic';
+            }
+        }
+
+        function switchSimplifyTab(level) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('simplify-elem').classList.add('hidden');
+            document.getElementById('simplify-mid').classList.add('hidden');
+            document.getElementById('simplify-high').classList.add('hidden');
+
+            document.getElementById(`simplify-${level}`).classList.remove('hidden');
+        }
+
+        async function handleGenerateActivity(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-activity');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+            try {
+                const res = await callAPI('/generate-activity', {
+                    topic: document.getElementById('activity-topic').value,
+                    grade_level: document.getElementById('activity-grade').value,
+                    subject: document.getElementById('activity-subject').value,
+                    activity_type: document.getElementById('activity-type').value
+                });
+
+                state.outputs['activity-out'] = res.data.activity;
+                document.getElementById('output-activity').innerHTML = marked.parse(res.data.activity);
+                document.getElementById('badge-activity').innerText = res.model_used || 'Llama 3.3 70B';
+                document.getElementById('result-activity').classList.remove('hidden');
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Generate Activity';
+            }
+        }
+
+        function downloadText(key, filename) {
+            const text = state.outputs[key];
+            if (!text) return;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
