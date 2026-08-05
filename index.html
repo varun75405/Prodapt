@@ -810,12 +810,13 @@
                 console.warn('Backend unavailable, attempting Groq direct fallback if key provided:', e);
             }
 
-            // Client direct Groq fallback if user provided direct key
-            if (state.groqApiKey) {
-                return await callGroqDirect(endpoint, payload);
+            if (!state.groqApiKey) {
+                openConfigModal();
+                alert('Backend not reached at ' + state.backendUrl + '\n\nPlease paste your Groq API Key in the Settings modal to generate live AI responses directly in your browser, or start your local backend server!');
+                throw new Error('Please configure Settings');
             }
 
-            throw new Error('Could not connect to backend server. Make sure FastAPI server is running at ' + state.backendUrl);
+            return await callGroqDirect(endpoint, payload);
         }
 
         async function callGroqDirect(endpoint, payload) {
