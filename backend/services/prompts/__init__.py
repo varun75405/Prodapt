@@ -1,0 +1,5 @@
+from services.prompts.lesson_prompts import build_lesson_prompt, LESSON_SYSTEM_PROMPT
+from services.prompts.quiz_prompts import build_quiz_prompt, QUIZ_SYSTEM_PROMPT
+from services.prompts.material_prompts import build_material_prompt, MATERIAL_SYSTEM_PROMPT
+from services.prompts.simplify_prompts import build_simplify_prompt, SIMPLIFY_SYSTEM_PROMPT
+from services.prompts.activity_prompts import build_activity_prompt, ACTIVITY_SYSTEM_PROMPT
